@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Application.Core;
 using Application.Interfaces;
 using Domain;
@@ -21,24 +17,22 @@ namespace Application.Photos
 
         public class Handler : IRequestHandler<Command, Result<Photo>>
         {
-        private readonly DataContext context;
-        private readonly IPhotoAccessor photoAccessor;
-        private readonly IUserAccessor userAccessor;
-        public Handler(DataContext context, IPhotoAccessor photoAccessor, IUserAccessor userAccessor)
+            private readonly DataContext _context;
+            private readonly IPhotoAccessor _photoAccessor;
+            private readonly IUserAccessor _userAccessor;
+
+            public Handler(DataContext context, IPhotoAccessor photoAccessor, IUserAccessor userAccessor)
             {
-                this.userAccessor = userAccessor;
-                this.photoAccessor = photoAccessor;
-                this.context = context;
+                _userAccessor = userAccessor;
+                _context = context;
+                _photoAccessor = photoAccessor;
             }
 
             public async Task<Result<Photo>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var user = await this.context.Users.Include(p => p.Photos)
-                    .FirstOrDefaultAsync(x => x.UserName == this.userAccessor.GetUserName());
-
-                if (user == null) return null;
-
-                var photoUploadResult = await this.photoAccessor.AddPhoto(request.File);
+                var photoUploadResult = await _photoAccessor.AddPhoto(request.File);
+                var user = await _context.Users.Include(p => p.Photos)
+                    .FirstOrDefaultAsync(x => x.UserName == _userAccessor.GetUserName());
 
                 var photo = new Photo
                 {
@@ -50,7 +44,7 @@ namespace Application.Photos
 
                 user.Photos.Add(photo);
 
-                var result = await this.context.SaveChangesAsync() > 0;
+                var result = await _context.SaveChangesAsync() > 0;
 
                 if (result) return Result<Photo>.Success(photo);
 

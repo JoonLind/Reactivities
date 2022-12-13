@@ -11,9 +11,9 @@ namespace Infrastructure.Security
     public class UserAccessor : IUserAccessor
     {
         private readonly IHttpContextAccessor httpContextAccessor;
-        public UserAccessor(IHttpContextAccessor httpContextAccessor)
+        public UserAccessor(IHttpContextAccessor _httpContextAccessor)
         {
-            this.httpContextAccessor = httpContextAccessor;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public string GetUserName()
